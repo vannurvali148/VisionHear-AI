@@ -1,12 +1,16 @@
-
+import os
 import sqlite3
 from pathlib import Path
 from contextlib import contextmanager
 
 BASE_DIR = Path(__file__).resolve().parent
-DATABASE_DIR = BASE_DIR / "database"
-DATABASE_PATH = DATABASE_DIR / "visionhear.db"
 
+if os.environ.get("VERCEL"):
+    DATABASE_DIR = Path("/tmp") / "visionhear_database"
+else:
+    DATABASE_DIR = BASE_DIR / "database"
+
+DATABASE_PATH = DATABASE_DIR / "visionhear.db"
 
 @contextmanager
 def get_connection():
