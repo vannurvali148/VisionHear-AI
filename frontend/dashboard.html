@@ -1,0 +1,991 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard | VisionHear AI</title>
+
+<style>
+:root {
+    --bg: #0b1425;
+    --nav: #111d32;
+    --card: #142139;
+    --border: #30415e;
+    --purple: #a78bfa;
+    --blue: #0878c9;
+    --green: #159b60;
+    --text: #ffffff;
+    --muted: #bdc9df;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+a { text-decoration: none; }
+
+.navbar {
+    background: var(--nav);
+    border-bottom: 1px solid #293a57;
+    padding: 18px 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.brand {
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.brand span { color: var(--purple); }
+
+.nav-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.nav-link {
+    color: #dce6f5;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.logout {
+    background: #963d54;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.container {
+    width: 92%;
+    max-width: 1350px;
+    margin: 35px auto;
+}
+
+.welcome {
+    background: linear-gradient(120deg, #222c59, #493477);
+    border: 1px solid #62518e;
+    border-radius: 18px;
+    padding: 35px;
+    margin-bottom: 35px;
+}
+
+.tag {
+    display: inline-block;
+    background: #40356c;
+    color: #d1c2ff;
+    border-radius: 25px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.welcome h1 {
+    font-size: 32px;
+    margin: 18px 0 10px;
+}
+
+.welcome p {
+    color: #d2d8ee;
+    line-height: 1.7;
+}
+
+.profile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    border-top: 1px solid #ffffff35;
+    margin-top: 22px;
+    padding-top: 20px;
+}
+
+.profile-item {
+    color: #d2d8ee;
+    font-size: 14px;
+}
+
+.profile-item strong {
+    display: block;
+    color: white;
+    margin-top: 7px;
+    font-size: 16px;
+}
+
+.section-title {
+    font-size: 24px;
+    margin: 35px 0 10px;
+    color: white;
+}
+
+.section-subtitle {
+    color: #aebdd5;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.module-grid,
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px;
+    transition: .2s;
+    box-shadow: none;
+}
+
+.card:hover {
+    border-color: #9277ee;
+    transform: translateY(-3px);
+}
+
+.card h3 {
+    font-size: 20px;
+    margin: 10px 0;
+    color: white;
+}
+
+.card p {
+    color: var(--muted);
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+.icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+}
+
+.number {
+    color: var(--purple);
+    font-size: 35px;
+    font-weight: bold;
+    margin: 12px 0;
+}
+
+.status {
+    display: inline-block;
+    background: #302958;
+    color: #d1c2ff;
+    border-radius: 20px;
+    padding: 7px 12px;
+    font-size: 12px;
+    margin: 10px 0;
+}
+
+.module-card { min-height: 270px; }
+
+.eye-card { border-top: 4px solid #0878c9; }
+.hearing-card { border-top: 4px solid #159b60; }
+
+.eye-card:hover { border-color: #0878c9; }
+.hearing-card:hover { border-color: #159b60; }
+
+.button {
+    display: inline-block;
+    background: linear-gradient(90deg, #0878c9, #1558a4);
+    color: white;
+    padding: 13px 20px;
+    border-radius: 9px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.button:hover { opacity: .85; }
+
+.button.green {
+    background: linear-gradient(90deg, #159b60, #087b55);
+}
+
+.button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px;
+    margin-bottom: 20px;
+}
+
+.panel h3 { color: white; }
+
+.panel p {
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.panel-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.panel-heading .icon {
+    font-size: 30px;
+    margin: 0;
+}
+
+.feature {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.feature.ai { border-top: 4px solid #9277ee; }
+.feature.suggestions { border-top: 4px solid #d5ae35; }
+
+.feature h3 { color: white; }
+
+.feature p,
+.feature li {
+    color: var(--muted);
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+.feature ul { padding-left: 20px; }
+
+/* REPORT AREA */
+
+.report-empty {
+    text-align: center;
+    padding: 30px 15px;
+    background: #192640;
+    border: 1px dashed #62518e;
+    border-radius: 12px;
+}
+
+.report-empty .icon { font-size: 42px; }
+
+.report-empty h3 { color: white; }
+
+.report-empty p {
+    color: #bdc9df;
+    line-height: 1.7;
+    max-width: 650px;
+    margin: 10px auto;
+}
+
+.report-note {
+    font-size: 12px;
+    color: #aebdd5;
+    margin-top: 15px;
+}
+
+/* WHITE REPORT PREVIEW IS INTENTIONAL */
+
+.report-preview {
+    background: white;
+    color: #18324f;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.report-footer-signatures {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 20px;
+    padding: 25px 12px;
+    margin-top: 10px;
+    border-top: 2px solid #8299ad;
+    border-bottom: 2px solid #8299ad;
+    background: white;
+}
+
+.report-stamp {
+    width: 130px;
+    height: 130px;
+    border: 4px double #173f9b;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #173f9b;
+    transform: rotate(-5deg);
+    flex-shrink: 0;
+}
+
+.stamp-inner {
+    width: 112px;
+    height: 112px;
+    border: 1.5px solid #173f9b;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.stamp-name {
+    font-size: 12px;
+    font-weight: 800;
+    border-top: 2px solid #173f9b;
+    border-bottom: 2px solid #173f9b;
+    padding: 7px 1px;
+    white-space: nowrap;
+}
+
+.stamp-stars {
+    font-size: 12px;
+    margin: 4px 0;
+}
+
+.signature-divider {
+    width: 2px;
+    height: 105px;
+    background: #8299ad;
+}
+
+.signature-area {
+    min-width: 230px;
+    text-align: center;
+    color: #173f9b;
+}
+
+.handwritten-signature {
+    font-family: "Brush Script MT", "Segoe Script", cursive;
+    font-size: 42px;
+    font-style: italic;
+    color: #173f9b;
+    transform: rotate(-5deg);
+    white-space: nowrap;
+    margin-bottom: 8px;
+}
+
+.signature-line {
+    width: 85%;
+    height: 2px;
+    background: #173f9b;
+    margin: 5px auto;
+}
+
+.signature-label {
+    font-size: 19px;
+    font-weight: bold;
+    color: #173f9b;
+    margin-top: 5px;
+}
+
+.report-disclaimer {
+    text-align: center;
+    font-size: 12px;
+    color: #66778b;
+    line-height: 1.6;
+    margin-top: 13px;
+}
+
+.notice {
+    background: #192640;
+    border: 1px solid #4b426b;
+    border-left: 4px solid #a78bfa;
+    border-radius: 10px;
+    padding: 22px;
+    margin-top: 35px;
+}
+
+.notice h3 { color: #ffc56c; }
+
+.notice p {
+    color: #bdc9df;
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+footer {
+    text-align: center;
+    padding: 30px 15px;
+    margin-top: 50px;
+    border-top: 1px solid #293a57;
+    color: #9aa9c2;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+@media(max-width: 850px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .module-grid,
+    .feature-grid { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 550px) {
+    .navbar {
+        padding: 16px 5%;
+        flex-wrap: wrap;
+    }
+
+    .container { width: 92%; }
+
+    .stats-grid { grid-template-columns: 1fr; }
+
+    .welcome { padding: 23px; }
+
+    .welcome h1 { font-size: 25px; }
+
+    .profile { gap: 20px; }
+
+    .report-footer-signatures {
+        gap: 10px;
+        padding: 20px 5px;
+    }
+
+    .report-stamp {
+        width: 105px;
+        height: 105px;
+    }
+
+    .stamp-inner {
+        width: 90px;
+        height: 90px;
+    }
+
+    .stamp-name { font-size: 9px; }
+
+    .signature-area { min-width: 155px; }
+
+    .handwritten-signature { font-size: 29px; }
+
+    .signature-label { font-size: 16px; }
+
+    .signature-divider { height: 85px; }
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a href="/" class="brand">◉ VisionHear <span>AI</span></a>
+
+    <div class="nav-actions">
+        <a href="#overview" class="nav-link">Dashboard</a>
+        <a href="/logout" class="logout">Logout</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <!-- WELCOME -->
+
+    <section class="welcome">
+        <span class="tag">STUDENT PORTAL</span>
+
+        <h1>Welcome to VisionHear AI 👋</h1>
+
+        <p>
+            Your personal eye and hearing screening dashboard.
+            Start your preliminary screening, review your activity,
+            and access your screening information.
+        </p>
+
+        <div class="profile">
+            <div class="profile-item">
+                Student Name
+                <strong id="student-name">Loading...</strong>
+            </div>
+
+            <div class="profile-item">
+                Email
+                <strong id="student-email">Loading...</strong>
+            </div>
+
+            <div class="profile-item">
+                Account Role
+                <strong id="student-role">Student</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATISTICS -->
+
+    <section id="overview">
+        <h2 class="section-title">Your Screening Overview</h2>
+
+        <p class="section-subtitle">
+            Your personal screening statistics.
+        </p>
+
+        <div class="stats-grid">
+
+            <article class="card">
+                <div class="icon">👁️</div>
+                <h3>Eye Screenings</h3>
+                <div class="number" id="eye-count">0</div>
+                <p>Total eye screening sessions</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">🎧</div>
+                <h3>Hearing Screenings</h3>
+                <div class="number" id="hearing-count">0</div>
+                <p>Total hearing screening sessions</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">📊</div>
+                <h3>Completed Screenings</h3>
+                <div class="number" id="completed-count">0</div>
+                <p>Completed screening sessions</p>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- SCREENING MODULES -->
+
+    <section id="screenings">
+        <h2 class="section-title">Choose Your Screening</h2>
+
+        <p class="section-subtitle">
+            Select a preliminary screening activity.
+        </p>
+
+        <div class="module-grid">
+
+            <article class="card module-card eye-card">
+                <div class="icon">👁️</div>
+                <h3>Eye Screening</h3>
+
+                <p>
+                    Complete visual screening activities including
+                    letter, number, colour, direction and contrast
+                    recognition exercises.
+                </p>
+
+                <span class="status">Eye Screening Module</span>
+                <br>
+
+                <a href="/eye-screening" class="button">
+                    Start Eye Screening →
+                </a>
+            </article>
+
+            <article class="card module-card hearing-card">
+                <div class="icon">👂</div>
+                <h3>Hearing Screening</h3>
+
+                <p>
+                    Complete preliminary hearing-response activities
+                    for the left and right ears using different
+                    sound frequencies.
+                </p>
+
+                <span class="status">Hearing Screening Module</span>
+                <br>
+
+                <a href="/hearing-screening" class="button green">
+                    Start Hearing Screening →
+                </a>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- AI PATTERN DETECTION -->
+
+    <section id="ai-analysis">
+        <h2 class="section-title">AI Pattern Detection</h2>
+
+        <p class="section-subtitle">
+            AI-assisted analysis of screening responses.
+        </p>
+
+        <div class="panel">
+            <div class="panel-heading">
+                <div class="icon">🤖</div>
+                <h3>AI-Powered Screening Analysis</h3>
+            </div>
+
+            <p>
+                VisionHear AI is designed to analyze recorded
+                screening responses and identify patterns
+                that may require further review.
+            </p>
+
+            <span class="status">
+                AI analysis integration status depends on backend
+            </span>
+
+            <p>
+                AI-generated observations are educational screening
+                information, not medical diagnoses. A qualified
+                healthcare professional should evaluate any concerns.
+            </p>
+        </div>
+    </section>
+
+    <!-- AI HEALTH SUGGESTIONS -->
+
+    <section id="suggestions">
+        <h2 class="section-title">AI Health Suggestions</h2>
+
+        <p class="section-subtitle">
+            Educational eye and hearing care guidance.
+        </p>
+
+        <div class="feature-grid">
+
+            <article class="feature ai">
+                <div class="panel-heading">
+                    <div class="icon">🧠</div>
+                    <h3>AI Health Observations</h3>
+                </div>
+
+                <p id="ai-observations">
+                    Your personalized observations will appear
+                    here after screening analysis is connected
+                    to your screening records.
+                </p>
+
+                <span class="status">
+                    Educational observations
+                </span>
+            </article>
+
+            <article class="feature suggestions">
+                <div class="panel-heading">
+                    <div class="icon">💡</div>
+                    <h3>General Health Suggestions</h3>
+                </div>
+
+                <ul>
+                    <li>Follow the 20-20-20 rule during screen use.</li>
+                    <li>Use proper lighting while reading.</li>
+                    <li>Avoid listening to excessively loud sounds.</li>
+                    <li>Take regular breaks from digital devices.</li>
+                    <li>Consult a healthcare professional about concerns.</li>
+                </ul>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- MY REPORTS -->
+
+    <section id="reports">
+        <h2 class="section-title">My Screening Reports</h2>
+
+        <p class="section-subtitle">
+            Your personal screening history and report access.
+        </p>
+
+        <div class="panel">
+
+            <div class="panel-heading">
+                <div class="icon">📄</div>
+                <h3>Comprehensive Screening Report</h3>
+            </div>
+
+            <div class="report-empty">
+
+                <div class="icon">📋</div>
+
+                <h3 id="report-status-title">
+                    Your Screening Reports
+                </h3>
+
+                <p id="report-status-message">
+                    Generate your personalized eye and hearing
+                    screening report using your saved screening records.
+                </p>
+
+                <button
+                    type="button"
+                    class="button"
+                    id="download-report-btn"
+                    onclick="downloadScreeningReport()">
+                    📄 Download My PDF Report
+                </button>
+
+                <p id="report-download-status" class="report-note">
+                    Your report will contain your available screening results.
+                </p>
+
+                <div class="report-note">
+                    Reports use your actual saved screening records.
+                    Incomplete screenings will be shown as not completed.
+                </div>
+
+            </div>
+
+            <!-- REPORT SIGNATURE AND STAMP -->
+
+            <div class="report-preview">
+
+                <div class="report-footer-signatures">
+
+                    <div class="report-stamp">
+                        <div class="stamp-inner">
+                            <div class="stamp-stars">★ ★ ★</div>
+
+                            <div class="stamp-name">
+                                VISIONHEAR AI
+                            </div>
+
+                            <div class="stamp-stars">★ ★ ★</div>
+                        </div>
+                    </div>
+
+                    <div class="signature-divider"></div>
+
+                    <div class="signature-area">
+                        <div class="handwritten-signature">
+                            Aadil Basha
+                        </div>
+
+                        <div class="signature-line"></div>
+
+                        <div class="signature-label">
+                            Signature
+                        </div>
+                    </div>
+
+                </div>
+
+                <p class="report-disclaimer">
+                    Educational screening report only.
+                    This is not a medical diagnosis, prescription
+                    or hospital-issued medical certificate.
+                </p>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- HEALTH NOTICE -->
+
+    <section class="notice">
+        <h3>⚕️ Important Health Notice</h3>
+
+        <p>
+            VisionHear AI provides preliminary educational
+            screening activities. It does not diagnose eye
+            or hearing diseases and cannot replace professional
+            medical examinations.
+        </p>
+
+        <p>
+            Screen-based visual exercises and browser audio tests
+            are affected by device and environment conditions.
+            Consult a qualified healthcare professional
+            for clinical assessment.
+        </p>
+    </section>
+
+</main>
+
+<footer>
+    <p>© 2026 VisionHear AI</p>
+    <p>AI-Powered Eye & Hearing Screening System</p>
+    <p>Student Portal</p>
+</footer>
+
+<script>
+
+// ============================================================
+// LOAD STUDENT PROFILE
+// ============================================================
+
+async function loadProfile() {
+    try {
+        const response = await fetch("/api/me");
+
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("Could not load profile.");
+        }
+
+        const user = await response.json();
+
+        if (user.role !== "student") {
+            window.location.href = "/admin-dashboard";
+            return;
+        }
+
+        document.getElementById("student-name").textContent =
+            user.full_name || "Student";
+
+        document.getElementById("student-email").textContent =
+            user.email || "Not available";
+
+        document.getElementById("student-role").textContent =
+            "Student";
+
+    } catch (error) {
+        console.error("Profile error:", error);
+
+        document.getElementById("student-name").textContent =
+            "Unable to load";
+
+        document.getElementById("student-email").textContent =
+            "Unable to load";
+    }
+}
+
+
+// ============================================================
+// LOAD STUDENT STATISTICS
+// ============================================================
+
+async function loadStats() {
+    try {
+        const response = await fetch("/api/student/stats");
+
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("Could not load statistics.");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("eye-count").textContent =
+            data.eye_tests ?? 0;
+
+        document.getElementById("hearing-count").textContent =
+            data.hearing_tests ?? 0;
+
+        document.getElementById("completed-count").textContent =
+            data.completed_tests ?? 0;
+
+    } catch (error) {
+        console.error("Statistics error:", error);
+    }
+}
+
+
+// ============================================================
+// DOWNLOAD PERSONAL SCREENING PDF REPORT
+// ============================================================
+
+async function downloadScreeningReport() {
+
+    const button = document.getElementById("download-report-btn");
+    const status = document.getElementById("report-download-status");
+
+    button.disabled = true;
+    button.textContent = "Generating PDF...";
+
+    status.textContent =
+        "Please wait while your personal report is generated.";
+
+    try {
+        const response = await fetch("/api/reports/pdf", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+
+        if (!response.ok) {
+            let message = "Unable to generate report.";
+
+            try {
+                const errorData = await response.json();
+                message = errorData.message || message;
+            } catch (error) {
+                // Use default error message.
+            }
+
+            throw new Error(message);
+        }
+
+        const blob = await response.blob();
+
+        if (blob.type !== "application/pdf") {
+            throw new Error("Server did not return a valid PDF file.");
+        }
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "VisionHear_My_Screening_Report.pdf";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+
+        status.textContent =
+            "Your PDF report has been downloaded successfully.";
+
+    } catch (error) {
+        console.error("Report download error:", error);
+
+        status.textContent =
+            error.message || "Report generation failed.";
+
+    } finally {
+        button.disabled = false;
+        button.textContent = "📄 Download My PDF Report";
+    }
+}
+
+
+// ============================================================
+// INITIAL LOAD
+// ============================================================
+
+loadProfile();
+loadStats();
+
+
+// REFRESH STATISTICS EVERY 10 SECONDS
+
+setInterval(loadStats, 10000);
+
+</script>
+
+</body>
+</html>

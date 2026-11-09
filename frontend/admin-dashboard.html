@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Dashboard | VisionHear AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/dashboard.js" defer></script>
+</head>
+<body>
+
+<header class="navbar">
+    <a href="/" class="logo">◉ VisionHear <span>AI</span></a>
+    <a href="/dashboard" class="button secondary">User Dashboard</a>
+</header>
+
+<main class="dashboard">
+    <div class="welcome">
+        <div>
+            <span class="tag">ADMINISTRATION PORTAL</span>
+            <h1>Maintenance Dashboard</h1>
+            <p>Monitor screening activity and system performance.</p>
+        </div>
+        <a href="/" class="button secondary">Logout</a>
+    </div>
+
+    <section class="stats-grid">
+        <article class="stat-card">
+            <span>Total Users</span>
+            <h2 id="total-users">0</h2>
+        </article>
+
+        <article class="stat-card">
+            <span>Eye Tests</span>
+            <h2 id="eye-tests">0</h2>
+        </article>
+
+        <article class="stat-card">
+            <span>Hearing Tests</span>
+            <h2 id="hearing-tests">0</h2>
+        </article>
+
+        <article class="stat-card">
+            <span>Completed Tests</span>
+            <h2 id="completed-tests">0</h2>
+        </article>
+    </section>
+
+    <section class="dashboard-grid">
+        <article class="dashboard-card">
+            <span class="big-icon">🧠</span>
+            <h2>AI Pattern Detection</h2>
+            <p>Review ML-based response pattern analysis.</p>
+            <span class="status">Awaiting screening data</span>
+        </article>
+
+        <article class="dashboard-card">
+            <span class="big-icon">📡</span>
+            <h2>Live Monitoring</h2>
+            <p>Monitor active eye and hearing test sessions.</p>
+            <span class="status">No active sessions</span>
+        </article>
+
+        <article class="dashboard-card">
+            <span class="big-icon">🗄️</span>
+            <h2>Database</h2>
+            <p>Screening records are stored locally in SQLite.</p>
+            <span class="status">Connected through backend</span>
+        </article>
+
+        <article class="dashboard-card">
+            <span class="big-icon">📄</span>
+            <h2>Reports</h2>
+            <p>Prepare screening summaries and PDF reports.</p>
+            <span class="status">Report module pending</span>
+        </article>
+    </section>
+
+    <section class="data-panel">
+        <h2>System Status</h2>
+        <p id="connection-status">Checking server...</p>
+        <p id="database-status">Loading records...</p>
+    </section>
+
+    <p class="notice">
+        Administrative access must be authenticated before deployment.
+        This initial development page is not a secured admin portal.
+    </p>
+</main>
+
+</body>
+</html>

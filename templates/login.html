@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | VisionHear AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .auth { max-width: 440px; margin: 65px auto; padding: 30px;
+            background: #131f35; border: 1px solid #30415e; border-radius: 18px; }
+        .auth label { display: block; margin: 18px 0 7px; }
+        .auth input { width: 100%; box-sizing: border-box; padding: 13px;
+            border-radius: 8px; border: 1px solid #40516e;
+            background: #0b1425; color: white; }
+        .auth button { width: 100%; padding: 14px; margin-top: 22px;
+            background: #6654ee; color: white; border: 0;
+            border-radius: 8px; cursor: pointer; }
+        .auth a { color: #b59aff; }
+        .message { padding: 12px; margin: 12px 0; background: #263752; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <main class="auth">
+        <h1>Welcome Back</h1>
+        <p>Login to your VisionHear AI account.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+            <label>Email address</label>
+            <input type="email" name="email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p>New student? <a href="/register">Create an account</a></p>
+        <p><a href="/">Back to Home</a></p>
+    </main>
+</body>
+</html>

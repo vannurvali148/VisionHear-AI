@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Request Admin Access | VisionHear AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .auth { max-width: 620px; margin: 50px auto; padding: 30px;
+            background: #131f35; border: 1px solid #30415e; border-radius: 18px; }
+        .auth label { display: block; margin: 18px 0 7px; }
+        .auth input, .auth textarea { width: 100%; box-sizing: border-box;
+            padding: 12px; border-radius: 8px; border: 1px solid #40516e;
+            background: #0b1425; color: white; }
+        .auth button { padding: 13px 22px; margin-top: 20px;
+            background: #6654ee; color: white; border: 0;
+            border-radius: 8px; cursor: pointer; }
+        .auth a { color: #b59aff; }
+        .message { padding: 12px; margin: 12px 0; background: #263752; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <main class="auth">
+        <h1>Request Administrator Access</h1>
+        <p>Your request must be reviewed by an existing administrator.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        {% if latest_request %}
+            <div class="message">
+                Latest request status:
+                <strong>{{ latest_request["status"]|capitalize }}</strong>
+            </div>
+        {% endif %}
+
+        {% if not latest_request or latest_request["status"] != "pending" %}
+        <form method="POST" enctype="multipart/form-data">
+            <label>College / Institution name</label>
+            <input type="text" name="college_name" maxlength="150" required>
+
+            <label>College ID / Staff ID</label>
+            <input type="text" name="college_id" maxlength="80" required>
+
+            <label>Reason for requesting administrator access</label>
+            <textarea name="reason" rows="4" maxlength="1000" required></textarea>
+
+            <label>Upload college ID proof</label>
+            <input type="file" name="proof"
+                   accept=".pdf,.png,.jpg,.jpeg" required>
+
+            <p>PDF, PNG, JPG or JPEG. Maximum 5 MB.</p>
+            <button type="submit">Submit Request</button>
+        </form>
+        {% else %}
+            <p>Your request is pending. Please wait for administrator review.</p>
+        {% endif %}
+
+        <p><a href="/dashboard">Back to Student Dashboard</a></p>
+    </main>
+</body>
+</html>

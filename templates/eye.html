@@ -1,0 +1,1517 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eye Screening | VisionHear AI</title>
+
+<style>
+:root {
+    --bg: #f3f6fc;
+    --white: #ffffff;
+    --navy: #102b55;
+    --blue: #1769c2;
+    --purple: #7955d9;
+    --green: #159b60;
+    --text: #172b4d;
+    --muted: #64748b;
+    --border: #dce5f1;
+    --shadow: 0 5px 20px rgba(25,55,100,.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+button, select { font: inherit; }
+button { cursor: pointer; }
+
+.topbar {
+    background: linear-gradient(110deg,#08264c,#145ca5);
+    color: white;
+    padding: 18px 4%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.brand span { color: #c5a7ff; }
+
+.topbar-center {
+    flex: 1;
+    text-align: center;
+}
+
+.topbar-center h1 {
+    margin: 0 0 5px;
+    font-size: 25px;
+}
+
+.topbar-center p {
+    margin: 0;
+    color: #e2edff;
+    font-size: 13px;
+}
+
+.dashboard-link {
+    text-decoration: none;
+    color: white;
+    background: #ffffff20;
+    border: 1px solid #ffffff50;
+    padding: 11px 16px;
+    border-radius: 9px;
+    font-weight: bold;
+}
+
+.page {
+    width: 94%;
+    max-width: 1450px;
+    margin: 25px auto;
+}
+
+.panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    color: var(--navy);
+    font-size: 21px;
+    font-weight: 800;
+    margin: 0 0 10px;
+}
+
+.section-description {
+    color: var(--muted);
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+.intro-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 18px;
+}
+
+.welcome-card {
+    background: linear-gradient(120deg,#e8f2ff,#f2edff);
+    border: 1px solid #d5e2f5;
+    border-radius: 14px;
+    padding: 24px;
+}
+
+.welcome-card h2 {
+    margin: 0 0 10px;
+    color: var(--navy);
+}
+
+.welcome-card p {
+    color: #526681;
+    line-height: 1.7;
+}
+
+.info-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.info-card h3 {
+    color: var(--navy);
+    margin-top: 0;
+}
+
+.info-card li {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.notice {
+    background: #fff8e8;
+    border: 1px solid #f1d99e;
+    border-left: 4px solid #e5a629;
+    color: #76531b;
+    padding: 15px;
+    border-radius: 9px;
+    margin-top: 20px;
+    line-height: 1.7;
+    font-size: 13px;
+}
+
+/* MODULE SELECTION */
+
+.module-grid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 14px;
+    margin: 20px 0;
+}
+
+.module-button {
+    background: #f8faff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: left;
+    color: var(--navy);
+    transition: .2s;
+}
+
+.module-button:hover {
+    border-color: var(--blue);
+    background: #edf5ff;
+}
+
+.module-button.active {
+    background: #eaf2ff;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px #1769c215;
+}
+
+.module-icon {
+    font-size: 29px;
+    margin-bottom: 10px;
+}
+
+.module-button strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+.module-button small {
+    display: block;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 16px;
+}
+
+.setting-label {
+    display: block;
+    color: var(--navy);
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.choice-row {
+    display: flex;
+    gap: 10px;
+}
+
+.choice-button {
+    flex: 1;
+    background: #f5f8fd;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 9px;
+    color: var(--text);
+    font-weight: bold;
+}
+
+.choice-button.active {
+    background: #edf3ff;
+    border-color: var(--blue);
+    color: #1455a0;
+}
+
+select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #cbd7e7;
+    border-radius: 9px;
+    background: white;
+    color: var(--text);
+}
+
+.check-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 20px;
+}
+
+.check-row input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--blue);
+}
+
+.button-area {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.primary-button {
+    background: linear-gradient(100deg,#1769c2,#5744bd);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    padding: 15px 25px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px #1769c230;
+}
+
+.primary-button:hover { filter: brightness(1.08); }
+
+.primary-button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.danger-button {
+    background: #fff0f1;
+    color: #b52d42;
+    border: 1px solid #f2c5cb;
+    border-radius: 9px;
+    padding: 12px 18px;
+    font-weight: bold;
+}
+
+.hidden { display: none !important; }
+
+/* TEST SCREEN */
+
+.test-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.test-badge {
+    background: #edf3ff;
+    color: #1759a4;
+    padding: 9px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.progress-track {
+    height: 11px;
+    background: #e8edf5;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 18px 0 8px;
+}
+
+.progress-fill {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg,#1769c2,#8a62e8);
+    transition: width .3s;
+}
+
+.progress-caption {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.question-card {
+    background: #f8faff;
+    border: 1px solid #dce6f3;
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 22px;
+    text-align: center;
+}
+
+.question-card h2 {
+    color: var(--navy);
+    margin: 12px 0;
+}
+
+.question-instruction {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.level-label {
+    display: inline-block;
+    background: #eee9ff;
+    color: #6944bc;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.target-area {
+    min-height: 270px;
+    background: white;
+    border: 1px solid #e0e7f0;
+    border-radius: 12px;
+    margin: 20px auto;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.target-text {
+    color: #111827;
+    font-weight: 900;
+    font-size: 48px;
+    line-height: 1.5;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+#pattern {
+    width: min(300px,75vw);
+    height: min(300px,75vw);
+    border-radius: 50%;
+    display: block;
+}
+
+/* COLOUR PLATE PREVIEW */
+
+.colour-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 16px;
+    margin: 15px 0;
+    background: #f7faff;
+    border-radius: 12px;
+}
+
+.preview-plate {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 38px;
+    font-weight: 900;
+    border: 4px dotted #f1a43c;
+    color: #c83d27;
+    background:
+        radial-gradient(circle at 15% 30%,#f5bd4b 3px,transparent 4px),
+        radial-gradient(circle at 60% 25%,#83a84d 4px,transparent 5px),
+        radial-gradient(circle at 35% 70%,#eeb94a 3px,transparent 4px),
+        radial-gradient(circle at 80% 65%,#78a74c 4px,transparent 5px),
+        #e9edbd;
+    background-size: 25px 25px;
+}
+
+.answer-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 12px;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.answer-button {
+    min-height: 65px;
+    background: white;
+    border: 2px solid #d8e2f0;
+    border-radius: 10px;
+    padding: 13px;
+    color: var(--navy);
+    font-size: 17px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.answer-button:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: #edf5ff;
+}
+
+.answer-button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.test-status {
+    color: var(--muted);
+    font-size: 13px;
+    min-height: 22px;
+}
+
+.test-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.result-score {
+    color: var(--purple);
+    font-size: 55px;
+    font-weight: 900;
+    margin: 20px 0;
+}
+
+.result-summary {
+    color: var(--muted);
+    line-height: 1.8;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #78879c;
+    font-size: 12px;
+}
+
+@media(max-width:950px) {
+    .intro-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: repeat(2,1fr); }
+    .settings-grid { grid-template-columns: 1fr; }
+}
+
+@media(max-width:600px) {
+    .topbar {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .topbar-center {
+        order: 3;
+        flex-basis: 100%;
+    }
+
+    .topbar-center h1 { font-size: 20px; }
+    .panel { padding: 16px; }
+    .module-grid { grid-template-columns: 1fr; }
+    .answer-grid { grid-template-columns: 1fr; }
+    .target-area { min-height: 190px; padding: 12px; }
+    .test-actions { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">◉ VisionHear <span>AI</span></div>
+
+    <div class="topbar-center">
+        <h1>Comprehensive Eye Screening</h1>
+        <p>Clear • Interactive • Educational Visual Assessment</p>
+    </div>
+
+    <a href="/dashboard" class="dashboard-link">← Dashboard</a>
+</header>
+
+<main class="page">
+
+<section class="panel" id="intro">
+
+    <div class="intro-grid">
+
+        <div class="welcome-card">
+            <h2>Welcome to Eye Screening</h2>
+            <p>
+                Choose a screening module below or complete the full
+                25-question screening. All activities are designed
+                for educational awareness and response recording.
+            </p>
+        </div>
+
+        <div class="info-card">
+            <h3>Available Activities</h3>
+            <ul>
+                <li>Letter and number recognition</li>
+                <li>Colour vision number patterns</li>
+                <li>Symbol direction recognition</li>
+                <li>Contrast sensitivity activities</li>
+                <li>Near vision reading activities</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="notice">
+        <b>Important:</b>
+        This is an educational screening exercise, not a clinical
+        eye examination. Screen size, brightness, viewing distance
+        and display settings affect results. It cannot diagnose
+        eye diseases or colour blindness.
+    </div>
+
+    <h2 class="section-title" style="margin-top:25px">
+        Select Screening Module
+    </h2>
+
+    <p class="section-description">
+        Select Full Screening or choose one specific test.
+    </p>
+
+    <div class="module-grid">
+
+        <button class="module-button active" type="button"
+            data-module="all" onclick="selectModule('all')">
+            <div class="module-icon">📋</div>
+            <strong>Full Eye Screening</strong>
+            <small>All activities • 25 questions</small>
+        </button>
+
+        <button class="module-button" type="button"
+            data-module="letters" onclick="selectModule('letters')">
+            <div class="module-icon">🔤</div>
+            <strong>Letter Recognition</strong>
+            <small>Identify displayed letters</small>
+        </button>
+
+        <button class="module-button" type="button"
+            data-module="numbers" onclick="selectModule('numbers')">
+            <div class="module-icon">🔢</div>
+            <strong>Number Recognition</strong>
+            <small>Identify number sequences</small>
+        </button>
+
+        <button class="module-button" type="button"
+            data-module="colour" onclick="selectModule('colour')">
+            <div class="module-icon">🎨</div>
+            <strong>Colour Vision Test</strong>
+            <small>Coloured dot plates with numbers</small>
+        </button>
+
+        <button class="module-button" type="button"
+            data-module="direction" onclick="selectModule('direction')">
+            <div class="module-icon">🧭</div>
+            <strong>Direction Recognition</strong>
+            <small>Identify symbol directions</small>
+        </button>
+
+        <button class="module-button" type="button"
+            data-module="contrast" onclick="selectModule('contrast')">
+            <div class="module-icon">◐</div>
+            <strong>Contrast Sensitivity</strong>
+            <small>Identify contrast levels</small>
+        </button>
+
+        <button class="module-button" type="button"
+            data-module="near" onclick="selectModule('near')">
+            <div class="module-icon">📖</div>
+            <strong>Near Vision</strong>
+            <small>Read displayed sentences</small>
+        </button>
+
+    </div>
+
+    <div id="colourPreview" class="hidden">
+        <h3 class="section-title">Colour Vision Number Plates</h3>
+
+        <p class="section-description">
+            These are sample colour-pattern numbers. During the
+            actual test, the numbers appear inside dotted circles.
+        </p>
+
+        <div class="colour-preview">
+            <div class="preview-plate">12</div>
+            <div class="preview-plate">8</div>
+            <div class="preview-plate">29</div>
+            <div class="preview-plate">45</div>
+            <div class="preview-plate">5</div>
+        </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:25px">
+        Customize Your Screening
+    </h2>
+
+    <div class="settings-grid">
+
+        <div>
+            <label class="setting-label">Test Mode</label>
+
+            <div class="choice-row">
+                <button class="choice-button active" type="button"
+                    id="withoutChoice"
+                    onclick="chooseMode('without')">
+                    Without Spectacles
+                </button>
+
+                <button class="choice-button" type="button"
+                    id="withChoice"
+                    onclick="chooseMode('with')">
+                    With Spectacles
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <label class="setting-label" for="difficulty">
+                Difficulty Level
+            </label>
+
+            <select id="difficulty">
+                <option value="all">All Levels</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="setting-label" for="displaySize">
+                Display Text Size
+            </label>
+
+            <select id="displaySize">
+                <option value="normal">Normal</option>
+                <option value="large">Large</option>
+                <option value="extra">Extra Large</option>
+            </select>
+        </div>
+
+    </div>
+
+    <label class="check-row">
+        <input type="checkbox" id="consent">
+        <span>
+            I understand this is an educational screening activity
+            and not a medical diagnosis.
+        </span>
+    </label>
+
+    <div class="button-area">
+        <button class="primary-button" id="startBtn"
+            onclick="startTest()">
+            Start Eye Screening →
+        </button>
+    </div>
+
+</section>
+
+<!-- TEST SCREEN -->
+
+<section class="panel hidden" id="testScreen">
+
+    <div class="test-header">
+        <div>
+            <h2 class="section-title" id="moduleName">
+                Eye Screening
+            </h2>
+
+            <p class="section-description" id="modeLabel"></p>
+        </div>
+
+        <span class="test-badge" id="trialNumber">Question 1</span>
+    </div>
+
+    <div class="progress-track">
+        <div class="progress-fill" id="progressBar"></div>
+    </div>
+
+    <div class="progress-caption">
+        <span>Screening progress</span>
+        <span id="progressText">0%</span>
+    </div>
+
+    <div class="question-card">
+
+        <span class="level-label" id="levelName">Easy Level</span>
+
+        <h2 id="questionTitle">Identify the displayed target</h2>
+
+        <p class="question-instruction" id="instruction"></p>
+
+        <div class="target-area">
+
+            <div class="target-text" id="target"></div>
+
+            <canvas id="pattern"
+                width="300"
+                height="300"
+                class="hidden"></canvas>
+
+        </div>
+
+        <div class="answer-grid" id="answers"></div>
+
+        <p class="test-status" id="status" aria-live="polite">
+            Select your answer.
+        </p>
+
+    </div>
+
+    <div class="test-actions">
+        <button class="danger-button" onclick="stopTest()">
+            Stop Screening
+        </button>
+    </div>
+
+</section>
+
+<!-- RESULTS -->
+
+<section class="panel hidden" id="resultScreen">
+
+    <div style="text-align:center">
+
+        <h1>Screening Completed</h1>
+
+        <p class="section-description">
+            Your educational screening result is shown below.
+        </p>
+
+        <div class="result-score" id="score">0%</div>
+
+        <p class="result-summary" id="summary"></p>
+
+        <p id="saveStatus" class="section-description"></p>
+
+        <div class="notice">
+            This score represents accuracy in this educational
+            exercise. It is not a clinical measurement of vision
+            or a diagnosis of colour blindness.
+        </div>
+
+        <button class="primary-button"
+            onclick="location.href='/dashboard'">
+            Return to Dashboard
+        </button>
+
+        <button class="primary-button"
+            onclick="location.reload()">
+            Start Another Screening
+        </button>
+
+    </div>
+
+</section>
+
+</main>
+
+<footer>
+    © 2026 VisionHear AI | Educational Eye Screening System
+</footer>
+
+<script>
+"use strict";
+
+const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const digits = "0123456789";
+
+const directions = ["Up", "Right", "Down", "Left"];
+
+const wordBank = [
+    "HOSPITAL",
+    "VISION",
+    "OPHTHALMOLOGY",
+    "MICROVASCULAR",
+    "NEUROSCIENCE",
+    "RETINOPATHY",
+    "PHOTORECEPTORS",
+    "ACCOMMODATION",
+    "CONJUNCTIVITIS",
+    "PRESBYOPIA"
+];
+
+const colourNumbers = ["12", "8", "29", "45", "5"];
+
+const modules = [
+    { type: "letters", name: "Letter Recognition", count: 5 },
+    { type: "numbers", name: "Number Recognition", count: 5 },
+    { type: "colour", name: "Colour Vision Test", count: 5 },
+    { type: "direction", name: "Direction Recognition", count: 4 },
+    { type: "contrast", name: "Contrast Sensitivity", count: 3 },
+    { type: "near", name: "Near Vision Test", count: 3 }
+];
+
+const levels = [
+    { name: "Easy", size: 48 },
+    { name: "Medium", size: 40 },
+    { name: "Hard", size: 32 },
+    { name: "Very Hard", size: 26 },
+    { name: "Extreme", size: 21 }
+];
+
+let mode = "without";
+let selectedModule = "all";
+
+let questions = [];
+let current = 0;
+let correct = 0;
+let testId = null;
+let questionStart = 0;
+let busy = false;
+
+
+// RANDOM HELPERS
+
+function random(max) {
+    return Math.floor(Math.random() * max);
+}
+
+function shuffle(items) {
+    const array = [...items];
+
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = random(i + 1);
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+}
+
+function makeSequence(chars, length) {
+    let result = "";
+
+    for (let i = 0; i < length; i++) {
+        result += chars[random(chars.length)];
+    }
+
+    return result;
+}
+
+function makeOptions(answer, alternatives) {
+    const unique = [...new Set(
+        alternatives.filter(item => item !== answer)
+    )];
+
+    return shuffle([
+        answer,
+        ...shuffle(unique).slice(0, 3)
+    ]);
+}
+
+
+// MODULE SELECTION
+
+function selectModule(value) {
+    selectedModule = value;
+
+    document.querySelectorAll(".module-button").forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.dataset.module === value
+        );
+    });
+
+    document.getElementById("colourPreview")
+        .classList.toggle("hidden", value !== "colour");
+
+    const startBtn = document.getElementById("startBtn");
+
+    startBtn.textContent = value === "colour"
+        ? "Start Colour Vision Test →"
+        : value === "all"
+            ? "Start Full Eye Screening →"
+            : "Start Selected Screening →";
+}
+
+
+// SPECTACLES MODE
+
+function chooseMode(value) {
+    mode = value;
+
+    document.getElementById("withChoice")
+        .classList.toggle("active", value === "with");
+
+    document.getElementById("withoutChoice")
+        .classList.toggle("active", value === "without");
+}
+
+
+// CREATE QUESTIONS
+
+function makeQuestions() {
+
+    const list = [];
+
+    const difficulty = document.getElementById("difficulty").value;
+    const displaySize = document.getElementById("displaySize").value;
+
+    let fixedLevel = null;
+
+    if (difficulty === "easy") fixedLevel = 0;
+    if (difficulty === "medium") fixedLevel = 1;
+    if (difficulty === "hard") fixedLevel = 2;
+
+    const activeModules = selectedModule === "all"
+        ? modules
+        : modules.filter(module => module.type === selectedModule);
+
+    activeModules.forEach(module => {
+
+        for (let i = 0; i < module.count; i++) {
+
+            const levelIndex = fixedLevel !== null
+                ? fixedLevel
+                : Math.min(4, Math.floor(i * 5 / module.count));
+
+            const level = levels[levelIndex];
+
+            const q = {
+                type: module.type,
+                module: module.name,
+                level: level.name,
+                size: level.size
+            };
+
+            if (module.type === "letters") {
+
+                const length = [3, 4, 5, 6, 7][levelIndex];
+
+                const answer = i % 2 === 0
+                    ? makeSequence(letters, length)
+                    : wordBank[random(wordBank.length)];
+
+                const alternatives = Array.from(
+                    { length: 3 },
+                    () => makeSequence(letters, answer.length)
+                );
+
+                q.correct = answer;
+                q.options = makeOptions(answer, alternatives);
+            }
+
+            if (module.type === "numbers") {
+
+                const length = [3, 4, 5, 7, 9][levelIndex];
+
+                const answer = makeSequence(digits, length);
+
+                const alternatives = Array.from(
+                    { length: 3 },
+                    () => makeSequence(digits, length)
+                );
+
+                q.correct = answer;
+                q.options = makeOptions(answer, alternatives);
+            }
+
+            if (module.type === "colour") {
+
+                q.correct = colourNumbers[i];
+                q.patternSeed = random(1000000000);
+
+                q.options = makeOptions(
+                    q.correct,
+                    ["12", "8", "29", "45", "5", "3", "6", "15"]
+                );
+
+                q.options.push("I Cannot See the Number");
+            }
+
+            if (module.type === "direction") {
+
+                q.correct = directions[random(4)];
+                q.symbol = i % 2 === 0 ? "E" : "C";
+                q.options = shuffle([...directions]);
+            }
+
+            if (module.type === "contrast") {
+
+                const contrasts = [
+                    { name: "High", opacity: 1 },
+                    { name: "Medium", opacity: 0.6 },
+                    { name: "Low", opacity: 0.25 }
+                ];
+
+                const selected = contrasts[i];
+
+                q.correct = selected.name;
+                q.opacity = selected.opacity;
+
+                q.options = makeOptions(
+                    q.correct,
+                    ["High", "Medium", "Low", "Very Low"]
+                );
+            }
+
+            if (module.type === "near") {
+
+                const sentences = [
+                    "The quick brown fox jumps over the lazy dog.",
+                    "Vision screening is an educational exercise.",
+                    "Healthy habits support general eye care."
+                ];
+
+                q.correct = sentences[i];
+
+                q.options = makeOptions(
+                    q.correct,
+                    [
+                        "The quick brown fox jumps over the lazy cat.",
+                        "Vision screening is a clinical diagnosis.",
+                        "Healthy habits support general ear care."
+                    ]
+                );
+            }
+
+            if (displaySize === "large") q.size += 8;
+            if (displaySize === "extra") q.size += 15;
+
+            list.push(q);
+        }
+    });
+
+    // Keep module order so colour questions are easy to locate.
+    return list;
+}
+
+
+// COLOUR VISION NUMBER PLATE
+
+function drawColourPlate(q) {
+
+    const canvas = document.getElementById("pattern");
+    const ctx = canvas.getContext("2d");
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Create the number mask.
+    const maskCanvas = document.createElement("canvas");
+    maskCanvas.width = width;
+    maskCanvas.height = height;
+
+    const maskCtx = maskCanvas.getContext("2d");
+
+    maskCtx.fillStyle = "#111111";
+    maskCtx.font = q.correct.length === 1
+        ? "bold 170px Arial"
+        : "bold 145px Arial";
+
+    maskCtx.textAlign = "center";
+    maskCtx.textBaseline = "middle";
+
+    maskCtx.fillText(q.correct, width / 2, height / 2 + 5);
+
+    const mask = maskCtx.getImageData(
+        0, 0, width, height
+    ).data;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+
+    const numberColors = [
+        "#e84837",
+        "#f16a36",
+        "#d92e57",
+        "#ff7845"
+    ];
+
+    const backgroundColors = [
+        "#16834e",
+        "#238b59",
+        "#5b9c40",
+        "#2f754c"
+    ];
+
+    let seed = q.patternSeed >>> 0;
+
+    function seededRandom() {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+    }
+
+    // Draw small coloured dots in a circular area.
+    for (let y = 15; y < height - 10; y += 9) {
+
+        for (let x = 15; x < width - 10; x += 9) {
+
+            const offsetX = (seededRandom() - .5) * 4;
+            const offsetY = (seededRandom() - .5) * 4;
+
+            const px = Math.round(x + offsetX);
+            const py = Math.round(y + offsetY);
+
+            const dx = px - width / 2;
+            const dy = py - height / 2;
+
+            if (dx * dx + dy * dy > 135 * 135) {
+                continue;
+            }
+
+            const index = (py * width + px) * 4;
+            const isNumber = mask[index + 3] > 100;
+
+            const palette = isNumber
+                ? numberColors
+                : backgroundColors;
+
+            const color = palette[
+                Math.floor(seededRandom() * palette.length)
+            ];
+
+            const radius = 2.8 + seededRandom() * 1.6;
+
+            ctx.beginPath();
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+    }
+
+    ctx.beginPath();
+    ctx.arc(width / 2, height / 2, 140, 0, Math.PI * 2);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#d8e1ec";
+    ctx.stroke();
+}
+
+
+// DISPLAY QUESTION
+
+function showQuestion() {
+
+    if (current >= questions.length) {
+        finishTest();
+        return;
+    }
+
+    const q = questions[current];
+
+    busy = false;
+    questionStart = Date.now();
+
+    document.getElementById("moduleName").textContent =
+        q.module;
+
+    document.getElementById("modeLabel").textContent =
+        mode === "with"
+            ? "With Spectacles"
+            : "Without Spectacles";
+
+    document.getElementById("trialNumber").textContent =
+        `Question ${current + 1} of ${questions.length}`;
+
+    const percent = Math.round(
+        current / questions.length * 100
+    );
+
+    document.getElementById("progressBar").style.width =
+        percent + "%";
+
+    document.getElementById("progressText").textContent =
+        percent + "%";
+
+    document.getElementById("levelName").textContent =
+        q.level + " Level";
+
+    document.getElementById("questionTitle").textContent =
+        q.module;
+
+    document.getElementById("status").textContent =
+        "Select the answer that matches what you see.";
+
+    const target = document.getElementById("target");
+    const canvas = document.getElementById("pattern");
+    const answers = document.getElementById("answers");
+
+    answers.innerHTML = "";
+
+    target.classList.remove("hidden");
+    canvas.classList.add("hidden");
+
+    target.style.transform = "none";
+    target.style.opacity = "1";
+    target.style.color = "#111827";
+    target.style.fontSize = q.size + "px";
+
+    if (q.type === "letters") {
+        document.getElementById("instruction").textContent =
+            "Read the letters or word and select the exact match.";
+
+        target.textContent = q.correct;
+    }
+
+    if (q.type === "numbers") {
+        document.getElementById("instruction").textContent =
+            "Read the displayed number sequence.";
+
+        target.textContent = q.correct;
+    }
+
+    if (q.type === "colour") {
+        document.getElementById("instruction").textContent =
+            "Identify the number inside the coloured dots. If you cannot see a number, select I Cannot See the Number.";
+
+        target.classList.add("hidden");
+        canvas.classList.remove("hidden");
+
+        drawColourPlate(q);
+    }
+
+    if (q.type === "direction") {
+        document.getElementById("instruction").textContent =
+            "Identify the direction of the open side of the symbol.";
+
+        target.textContent = q.symbol;
+        target.style.fontSize = "120px";
+
+        const rotations = {
+            Up: 270,
+            Right: 0,
+            Down: 90,
+            Left: 180
+        };
+
+        target.style.transform =
+            `rotate(${rotations[q.correct]}deg)`;
+    }
+
+    if (q.type === "contrast") {
+        document.getElementById("instruction").textContent =
+            "Identify the displayed contrast level.";
+
+        target.textContent = "C";
+        target.style.fontSize = "120px";
+        target.style.opacity = q.opacity;
+    }
+
+    if (q.type === "near") {
+        document.getElementById("instruction").textContent =
+            "Read the sentence and select the exact matching text.";
+
+        target.textContent = q.correct;
+    }
+
+    q.options.forEach(option => {
+
+        const button = document.createElement("button");
+
+        button.className = "answer-button";
+        button.type = "button";
+        button.textContent = option;
+
+        button.onclick = () => submitAnswer(option);
+
+        answers.appendChild(button);
+    });
+}
+
+
+// START SCREENING
+
+async function startTest() {
+
+    if (!document.getElementById("consent").checked) {
+        alert("Please accept the educational screening information.");
+        return;
+    }
+
+    const button = document.getElementById("startBtn");
+
+    button.disabled = true;
+    button.textContent = "Starting...";
+
+    try {
+
+        const response = await fetch("/api/eye/start", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+                test_mode: mode
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !data.test_id) {
+            throw new Error(
+                data.message || "Unable to start screening."
+            );
+        }
+
+        testId = data.test_id;
+        questions = makeQuestions();
+
+        current = 0;
+        correct = 0;
+        busy = false;
+
+        document.getElementById("intro")
+            .classList.add("hidden");
+
+        document.getElementById("testScreen")
+            .classList.remove("hidden");
+
+        showQuestion();
+
+    } catch (error) {
+
+        alert(error.message);
+
+        button.disabled = false;
+        button.textContent = "Start Eye Screening →";
+    }
+}
+
+
+// SAVE ANSWER
+
+async function submitAnswer(answer) {
+
+    if (busy) return;
+
+    busy = true;
+
+    const q = questions[current];
+
+    const responseTime = Date.now() - questionStart;
+
+    const isCorrect = String(answer) === String(q.correct);
+
+    document.querySelectorAll(".answer-button")
+        .forEach(button => button.disabled = true);
+
+    document.getElementById("status").textContent =
+        "Saving response...";
+
+    try {
+
+        const response = await fetch("/api/eye/response", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+                test_id: testId,
+                question_number: current + 1,
+                response: q.type + ":" + answer,
+                is_correct: isCorrect,
+                response_time: responseTime
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message || "Unable to save response."
+            );
+        }
+
+        if (isCorrect) correct++;
+
+        current++;
+        showQuestion();
+
+    } catch (error) {
+
+        document.getElementById("status").textContent =
+            error.message;
+
+        busy = false;
+
+        document.querySelectorAll(".answer-button")
+            .forEach(button => button.disabled = false);
+    }
+}
+
+
+// STOP SCREENING
+
+function stopTest() {
+
+    if (confirm("Stop this screening session?")) {
+        window.location.href = "/dashboard";
+    }
+}
+
+
+// COMPLETE SCREENING
+
+async function finishTest() {
+
+    busy = true;
+
+    const percentage = Math.round(
+        correct / questions.length * 100
+    );
+
+    document.getElementById("testScreen")
+        .classList.add("hidden");
+
+    document.getElementById("resultScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("score").textContent =
+        percentage + "%";
+
+    document.getElementById("summary").textContent =
+        `You answered ${correct} correctly out of ${questions.length} questions. Test mode: ${
+            mode === "with" ? "With Spectacles" : "Without Spectacles"
+        }.`;
+
+    document.getElementById("saveStatus").textContent =
+        "Saving completed screening...";
+
+    try {
+
+        const response = await fetch("/api/eye/complete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+                test_id: testId,
+                test_mode: mode
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.message || "Unable to complete screening."
+            );
+        }
+
+        document.getElementById("saveStatus").textContent =
+            "Screening saved successfully.";
+
+    } catch (error) {
+
+        document.getElementById("saveStatus").textContent =
+            "Saving failed: " + error.message;
+    }
+}
+
+</script>
+
+</body>
+</html>

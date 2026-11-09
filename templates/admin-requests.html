@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Requests | VisionHear AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .page { max-width: 1050px; margin: 40px auto; padding: 20px; }
+        .card { background: #131f35; border: 1px solid #30415e;
+            border-radius: 14px; padding: 22px; margin: 18px 0; }
+        .card p { color: #c2cce0; }
+        .card a { color: #b59aff; }
+        button { padding: 10px 16px; border: 0; border-radius: 8px;
+            color: white; cursor: pointer; margin: 6px; }
+        .approve { background: #16794a; }
+        .reject { background: #9b343f; }
+        .message { background: #263752; padding: 12px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <h1>Administrator Access Requests</h1>
+        <p>Review submitted college information and proof.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        {% for item in requests_list %}
+        <section class="card">
+            <h2>{{ item["full_name"] }}</h2>
+            <p>Email: {{ item["email"] }}</p>
+            <p>College: {{ item["college_name"] }}</p>
+            <p>College ID: {{ item["college_id"] }}</p>
+            <p>Reason: {{ item["reason"] }}</p>
+            <p>Status: <strong>{{ item["status"]|capitalize }}</strong></p>
+
+            <a href="/admin/request-proof/{{ item['id'] }}">
+                Download ID proof
+            </a>
+
+            {% if item["status"] == "pending" %}
+            <form method="POST"
+                  action="/admin/requests/{{ item['id'] }}/review">
+                <button class="approve" name="action"
+                        value="approve" type="submit">
+                    Approve
+                </button>
+
+                <button class="reject" name="action"
+                        value="reject" type="submit">
+                    Reject
+                </button>
+            </form>
+            {% endif %}
+        </section>
+        {% else %}
+            <p>No administrator requests have been submitted.</p>
+        {% endfor %}
+
+        <p><a href="/admin-dashboard">Back to Maintenance Dashboard</a></p>
+    </main>
+</body>
+</html>
