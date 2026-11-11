@@ -145,7 +145,12 @@ def login_required(func):
     def wrapper(*args, **kwargs):
 
         if "user_id" not in session:
-            return redirect(url_for("login"))
+             if request.path.startswith("/api/"):  
+                return jsonify({
+                    "success": False,
+                    "error": "Please login first"
+                }), 401 
+             return redirect(url_for("login"))
 
         return func(*args, **kwargs)
 
@@ -830,3 +835,691 @@ def complete_eye_test():
 # END OF PART 2
 # PART 3 WILL CONTAIN ADMIN APIs AND PDF REPORT GENERATION
 # ============================================================
+# ============================================================
+# PART 3: ADMIN DASHBOARD + PDF REPORTS
+# ============================================================
+
+
+# ------------------------------------------------------------
+# 1. ADMIN DASHBOARD
+# ------------------------------------------------------------
+
+@app.route("/admin-dashboard")
+@login_required
+def admin_dashboard():
+
+    owner_email = get_owner_email()
+
+    if (
+        session.get("role") != "admin"
+        or not owner_email
+        or session.get("email", "").lower() != owner_email.lower()
+    ):
+        return "Access denied. Admin only.", 403
+
+    if (FRONTEND_DIR / "admin-dashboard.html").exists():
+        return send_from_directory(
+            FRONTEND_DIR,
+            "admin-dashboard.html"
+        )
+
+    return "Admin dashboard not found", 404
+
+
+# ------------------------------------------------------------
+# 2. ADMIN DASHBOARD STATISTICS
+# ------------------------------------------------------------
+
+@app.route("/api/dashboard/stats")
+@admin_required
+def admin_dashboard_stats():
+
+    with get_connection() as conn:
+
+        total_students = conn.execute("""
+            SELECT COUNT(*) AS total
+            FROM users
+            WHERE role = 'student'
+        """).fetchone()["total"]
+
+        total_eye_tests = conn.execute("""
+            SELECT COUNT(*) AS total
+            FROM eye_tests
+            WHERE status = 'completed'
+        """).fetchone()["total"]
+
+        total_hearing_tests = conn.execute("""
+            SELECT COUNT(*) AS total
+            FROM hearing_tests
+            WHERE status = 'completed'
+        """).fetchone()["total"]
+
+        average_accuracy = conn.execute("""
+            SELECT AVG(accuracy) AS average
+            FROM eye_tests
+            WHERE status = 'completed'
+        """).fetchone()["average"]
+
+    return jsonify({
+        "success": True,
+        "total_students": total_students,
+        "total_eye_tests": total_eye_tests,
+        "total_hearing_tests": total_hearing_tests,
+        "total_tests": total_eye_tests + total_hearing_tests,
+        "average_eye_accuracy": round(
+            average_accuracy or 0, 2
+        )
+    })
+
+
+# ------------------------------------------------------------
+# 3. ADMIN ACTIVITY LOGS
+# ------------------------------------------------------------
+
+@app.route("/api/admin/activity")
+@admin_required
+def admin_activity():
+
+    with get_connection() as conn:
+
+        rows = conn.execute("""
+            SELECT
+                activity_logs.id,
+                activity_logs.user_id,
+                activity_logs.activity,
+                activity_logs.details,
+                activity_logs.created_at,
+                users.full_name,
+                users.email
+            FROM activity_logs
+            LEFT JOIN users
+                ON users.id = activity_logs.user_id
+            ORDER BY activity_logs.id DESC
+            LIMIT 100
+        """).fetchall()
+
+    activities = []
+
+    for row in rows:
+        activities.append({
+            "id": row["id"],
+            "user_id": row["user_id"],
+            "student_name": row["full_name"] or "Unknown",
+            "email": row["email"] or "",
+            "activity": row["activity"],
+            "details": row["details"],
+            "created_at": row["created_at"]
+        })
+
+    return jsonify({
+        "success": True,
+        "activities": activities
+    })
+
+
+# ------------------------------------------------------------
+# 4. CREATE / CONFIGURE ADMIN ACCOUNT
+# ------------------------------------------------------------
+
+def create_admin(email, password):
+
+    email = str(email).strip().lower()
+
+    if not email or len(password) < 8:
+        raise ValueError(
+            "Valid email and password of at least 8 characters required"
+        )
+
+    with get_connection() as conn:
+
+        user = conn.execute("""
+            SELECT id
+            FROM users
+            WHERE email = ?
+        """, (email,)).fetchone()
+
+        if not user:
+            raise ValueError(
+                "Register this email as a user before making it admin"
+            )
+
+        conn.execute("""
+            UPDATE users
+            SET role = 'admin',
+                password_hash = ?
+            WHERE email = ?
+        """, (
+            generate_password_hash(password),
+            email
+        ))
+
+        conn.execute("""
+            INSERT INTO system_settings (
+                setting_key,
+                setting_value
+            )
+            VALUES ('owner_email', ?)
+            ON CONFLICT(setting_key)
+            DO UPDATE SET setting_value = excluded.setting_value
+        """, (email,))
+
+    print("Admin account configured successfully.")
+
+
+# ------------------------------------------------------------
+# 5. PDF REPORT HELPERS
+# ------------------------------------------------------------
+
+def pdf_safe(value):
+
+    if value is None or str(value).strip() == "":
+        return "Not available"
+
+    return escape(str(value))
+
+
+def add_pdf_heading(story, text, styles):
+
+    story.append(Spacer(1, 8))
+    story.append(
+        Paragraph(pdf_safe(text), styles["Heading2"])
+    )
+    story.append(Spacer(1, 5))
+
+
+def add_pdf_table(story, rows):
+
+    table = Table(
+        rows,
+        colWidths=[65 * mm, 105 * mm],
+        repeatRows=1
+    )
+
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#263858")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cccccc")),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#f4f6fa")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 7),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+
+    story.append(table)
+    story.append(Spacer(1, 10))
+
+
+# ------------------------------------------------------------
+# 6. PERSONALIZED STUDENT PDF REPORT
+# ------------------------------------------------------------
+
+@app.route("/api/reports/pdf", methods=["GET", "POST"])
+@login_required
+def generate_student_report():
+
+    user_id = session["user_id"]
+
+    with get_connection() as conn:
+
+        student = conn.execute("""
+            SELECT id, full_name, email, created_at
+            FROM users
+            WHERE id = ?
+        """, (user_id,)).fetchone()
+
+        eye_tests = conn.execute("""
+            SELECT
+                id,
+                accuracy,
+                average_response_time,
+                test_mode,
+                started_at,
+                completed_at
+            FROM eye_tests
+            WHERE user_id = ?
+              AND status = 'completed'
+            ORDER BY completed_at DESC, id DESC
+        """, (user_id,)).fetchall()
+
+        hearing_tests = conn.execute("""
+            SELECT id, started_at, completed_at
+            FROM hearing_tests
+            WHERE user_id = ?
+              AND status = 'completed'
+            ORDER BY completed_at DESC, id DESC
+        """, (user_id,)).fetchall()
+
+    if not student:
+        return jsonify({
+            "success": False,
+            "message": "Student account not found"
+        }), 404
+
+    buffer = BytesIO()
+
+    document = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=18 * mm,
+        leftMargin=18 * mm,
+        topMargin=18 * mm,
+        bottomMargin=18 * mm
+    )
+
+    styles = getSampleStyleSheet()
+
+    styles.add(ParagraphStyle(
+        name="ReportTitle",
+        parent=styles["Title"],
+        fontSize=21,
+        leading=26,
+        textColor=colors.HexColor("#263858"),
+        alignment=1,
+        spaceAfter=8
+    ))
+
+    styles.add(ParagraphStyle(
+        name="SmallNote",
+        parent=styles["Normal"],
+        fontSize=8,
+        leading=12,
+        textColor=colors.HexColor("#555555")
+    ))
+
+    story = []
+
+    story.append(
+        Paragraph("VISIONHEAR AI", styles["ReportTitle"])
+    )
+
+    story.append(
+        Paragraph(
+            "Personal Eye & Hearing Screening Report",
+            styles["Heading2"]
+        )
+    )
+
+    story.append(Spacer(1, 12))
+
+    add_pdf_heading(
+        story,
+        "1. Student Information",
+        styles
+    )
+
+    student_rows = [
+        ["Field", "Details"],
+        ["Student ID", pdf_safe(student["id"])],
+        ["Student Name", pdf_safe(student["full_name"])],
+        ["Email", pdf_safe(student["email"])],
+        ["Report Generated", datetime.now().strftime("%d-%m-%Y %I:%M %p")]
+    ]
+
+    add_pdf_table(story, student_rows)
+
+    add_pdf_heading(
+        story,
+        "2. Eye Screening Results",
+        styles
+    )
+
+    if eye_tests:
+
+        latest_eye = eye_tests[0]
+
+        eye_rows = [
+            ["Field", "Latest Result"],
+            ["Test ID", pdf_safe(latest_eye["id"])],
+            ["Accuracy", f'{latest_eye["accuracy"] or 0}%'],
+            [
+                "Average Response Time",
+                f'{latest_eye["average_response_time"] or 0} seconds'
+            ],
+            [
+                "Screening Mode",
+                "With spectacles"
+                if latest_eye["test_mode"] == "with"
+                else "Without spectacles"
+            ],
+            ["Completed At", pdf_safe(latest_eye["completed_at"])],
+            ["Total Completed Eye Tests", str(len(eye_tests))]
+        ]
+
+        add_pdf_table(story, eye_rows)
+
+        latest_mode = latest_eye["test_mode"] or "without"
+        previous_eye = None
+
+        for test in eye_tests[1:]:
+            if (test["test_mode"] or "without") == latest_mode:
+                previous_eye = test
+                break
+
+        if previous_eye:
+
+            current_accuracy = float(
+                latest_eye["accuracy"] or 0
+            )
+
+            previous_accuracy = float(
+                previous_eye["accuracy"] or 0
+            )
+
+            difference = round(
+                current_accuracy - previous_accuracy, 2
+            )
+
+            comparison_rows = [
+                ["Comparison", "Result"],
+                ["Current Accuracy", f"{current_accuracy}%"],
+                ["Previous Accuracy", f"{previous_accuracy}%"],
+                ["Difference", f"{difference:+.2f}%"]
+            ]
+
+            add_pdf_table(story, comparison_rows)
+
+        else:
+            story.append(
+                Paragraph(
+                    "No previous completed eye test is available "
+                    "for comparison in the same screening mode.",
+                    styles["Normal"]
+                )
+            )
+
+        with get_connection() as conn:
+
+            eye_responses = conn.execute("""
+                SELECT
+                    question_number,
+                    response,
+                    is_correct,
+                    response_time
+                FROM eye_responses
+                WHERE test_id = ?
+                ORDER BY question_number
+            """, (latest_eye["id"],)).fetchall()
+
+        if eye_responses:
+
+            add_pdf_heading(
+                story,
+                "Eye Response Details",
+                styles
+            )
+
+            response_rows = [
+                ["Question", "Response"]
+            ]
+
+            for response in eye_responses:
+
+                response_rows.append([
+                    str(response["question_number"]),
+                    (
+                        f'{pdf_safe(response["response"])} | '
+                        f'{"Correct" if response["is_correct"] else "Incorrect"} | '
+                        f'{response["response_time"] or 0} sec'
+                    )
+                ])
+
+            add_pdf_table(story, response_rows)
+
+    else:
+        story.append(
+            Paragraph(
+                "Eye screening: Not completed yet.",
+                styles["Normal"]
+            )
+        )
+
+    add_pdf_heading(
+        story,
+        "3. Hearing Screening Results",
+        styles
+    )
+
+    if hearing_tests:
+
+        with get_connection() as conn:
+
+            hearing_rows = conn.execute("""
+                SELECT
+                    hr.ear,
+                    hr.frequency_hz,
+                    hr.response,
+                    hr.response_time,
+                    hr.intensity_level,
+                    hr.intensity_percent
+                FROM hearing_responses hr
+                JOIN hearing_tests ht
+                    ON ht.id = hr.test_id
+                WHERE ht.user_id = ?
+                  AND ht.status = 'completed'
+                  AND ht.id = (
+                      SELECT ht2.id
+                      FROM hearing_tests ht2
+                      JOIN hearing_responses hr2
+                          ON hr2.test_id = ht2.id
+                      WHERE ht2.user_id = ?
+                        AND ht2.status = 'completed'
+                        AND hr2.ear = hr.ear
+                      ORDER BY ht2.completed_at DESC, ht2.id DESC
+                      LIMIT 1
+                  )
+                ORDER BY
+                    CASE hr.ear
+                        WHEN 'left' THEN 1
+                        ELSE 2
+                    END,
+                    hr.frequency_hz
+            """, (user_id, user_id)).fetchall()
+
+        if hearing_rows:
+
+            hearing_table = [[
+                "Ear",
+                "Frequency",
+                "Response",
+                "Relative Level"
+            ]]
+
+            for item in hearing_rows:
+
+                hearing_table.append([
+                    str(item["ear"]).title(),
+                    f'{item["frequency_hz"]} Hz',
+                    str(item["response"]).replace("_", " ").title(),
+                    (
+                        f'{item["intensity_level"] or "Unknown"} '
+                        f'({item["intensity_percent"] or 0}%)'
+                    )
+                ])
+
+            table = Table(
+                hearing_table,
+                colWidths=[30 * mm, 35 * mm, 45 * mm, 60 * mm],
+                repeatRows=1
+            )
+
+            table.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#263858")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("FONTSIZE", (0, 0), (-1, -1), 8),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#f4f6fa")),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]))
+
+            story.append(table)
+            story.append(Spacer(1, 10))
+
+            story.append(
+                Paragraph(
+                    "Hearing levels shown here are relative browser "
+                    "test output, not calibrated clinical decibel values.",
+                    styles["SmallNote"]
+                )
+            )
+
+        else:
+            story.append(
+                Paragraph(
+                    "Hearing responses: Not available.",
+                    styles["Normal"]
+                )
+            )
+
+    else:
+        story.append(
+            Paragraph(
+                "Hearing screening: Not completed yet.",
+                styles["Normal"]
+            )
+        )
+
+    add_pdf_heading(
+        story,
+        "4. Educational Suggestions",
+        styles
+    )
+
+    suggestions = [
+        "Use the screening results as general educational information.",
+        "Take regular breaks during prolonged screen use.",
+        "Maintain comfortable lighting while reading or using screens.",
+        "Avoid listening to loud audio for long periods.",
+        "If you have concerns about your vision or hearing, "
+        "consult a qualified eye-care or hearing-care professional."
+    ]
+
+    for suggestion in suggestions:
+        story.append(
+            Paragraph(
+                "• " + pdf_safe(suggestion),
+                styles["Normal"]
+            )
+        )
+        story.append(Spacer(1, 4))
+
+    add_pdf_heading(
+        story,
+        "5. Important Disclaimer",
+        styles
+    )
+
+    story.append(
+        Paragraph(
+            "VisionHear AI is an educational screening project. "
+            "It does not provide a medical diagnosis and cannot replace "
+            "a professional eye or hearing examination. Browser-based "
+            "audio output is not calibrated medical equipment.",
+            styles["SmallNote"]
+        )
+    )
+
+    story.append(Spacer(1, 25))
+
+    story.append(
+        Paragraph(
+            "Prepared by: Aadil Basha",
+            styles["Normal"]
+        )
+    )
+
+    story.append(Spacer(1, 8))
+
+    story.append(
+        Paragraph(
+            "VISIONHEAR AI",
+            styles["Heading2"]
+        )
+    )
+
+    story.append(
+        Paragraph(
+            "Educational Screening Report",
+            styles["SmallNote"]
+        )
+    )
+
+    document.build(story)
+
+    buffer.seek(0)
+
+    record_activity(
+        user_id,
+        "Screening Report Generated",
+        "Personal PDF report generated"
+    )
+
+    return send_file(
+        buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name="VisionHear_AI_Report.pdf"
+    )
+
+
+# ------------------------------------------------------------
+# 7. HEALTH CHECK
+# ------------------------------------------------------------
+
+@app.route("/api/health")
+def health_check():
+
+    return jsonify({
+        "success": True,
+        "application": "VisionHear AI",
+        "status": "running",
+        "time": datetime.now().isoformat()
+    })
+
+
+# ------------------------------------------------------------
+# 8. ERROR HANDLERS
+# ------------------------------------------------------------
+
+@app.errorhandler(404)
+def page_not_found(error):
+
+    if request.path.startswith("/api/"):
+        return jsonify({
+            "success": False,
+            "error": "API endpoint not found"
+        }), 404
+
+    return "Page not found", 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+
+    app.logger.exception("Internal server error")
+
+    if request.path.startswith("/api/"):
+        return jsonify({
+            "success": False,
+            "error": "Internal server error"
+        }), 500
+
+    return "Something went wrong. Please check the server terminal.", 500
+
+
+# ------------------------------------------------------------
+# 9. START FLASK APPLICATION
+# ------------------------------------------------------------
+
+if __name__ == "__main__":
+
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )
