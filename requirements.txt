@@ -3,3 +3,4 @@ Flask
 Werkzeug
 reportlab
 gunicorn
+PyMySQL

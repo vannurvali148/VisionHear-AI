@@ -1,7 +1,7 @@
 
 import os
 import sys
-import sqlite3
+from pymysql.err import IntegrityError
 from io import BytesIO
 from pathlib import Path
 from functools import wraps
@@ -62,16 +62,36 @@ init_db()
 
 def ensure_column(table, column, definition):
 
+    allowed_tables = {
+        "eye_tests",
+        "hearing_responses"
+    }
+
+    allowed_columns = {
+        "eye_tests": {"test_mode"},
+        "hearing_responses": {
+            "intensity_level",
+            "intensity_percent"
+        }
+    }
+
+    if table not in allowed_tables:
+        raise ValueError("Invalid table name")
+
+    if column not in allowed_columns[table]:
+        raise ValueError("Invalid column name")
+
     with get_connection() as conn:
 
-        columns = {
-            row["name"]
-            for row in conn.execute(
-                f"PRAGMA table_info({table})"
-            ).fetchall()
-        }
+        result = conn.execute("""
+            SELECT COUNT(*) AS total
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = %s
+            AND COLUMN_NAME = %s
+        """, (table, column)).fetchone()
 
-        if column not in columns:
+        if result["total"] == 0:
             conn.execute(
                 f"ALTER TABLE {table} ADD COLUMN {column} {definition}"
             )
@@ -79,25 +99,18 @@ def ensure_column(table, column, definition):
 
 def ensure_database():
 
-    with get_connection() as conn:
+    ensure_column("eye_tests", "test_mode", "VARCHAR(50)")
 
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS system_settings (
-                setting_key TEXT PRIMARY KEY,
-                setting_value TEXT NOT NULL
-            )
-        """)
-
-    ensure_column("eye_tests", "test_mode", "TEXT")
     ensure_column(
         "hearing_responses",
         "intensity_level",
-        "TEXT"
+        "VARCHAR(50)"
     )
+
     ensure_column(
         "hearing_responses",
         "intensity_percent",
-        "INTEGER"
+        "INT"
     )
 
 
@@ -267,7 +280,7 @@ def register():
             "message": "Registration successful"
         }), 201
 
-    except sqlite3.IntegrityError:
+    except IntegrityError:
 
         return jsonify({
             "success": False,
@@ -999,8 +1012,7 @@ def create_admin(email, password):
                 setting_value
             )
             VALUES ('owner_email', ?)
-            ON CONFLICT(setting_key)
-            DO UPDATE SET setting_value = excluded.setting_value
+            ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
         """, (email,))
 
     print("Admin account configured successfully.")
